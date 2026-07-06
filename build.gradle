@@ -33,6 +33,7 @@ dependencies {
 
 test {
     useJUnitPlatform() // Required to run JUnit 5 tests
+    forkEvery = 1
     doFirst {
         copy {
             from "build/resources/main"

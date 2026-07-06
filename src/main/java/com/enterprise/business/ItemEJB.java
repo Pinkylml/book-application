@@ -29,13 +29,13 @@ public class ItemEJB implements ItemLocal, ItemRemote {
     @Override
     public Book createBook(Book book) {
         em.persist(book);
-        return null;
+        return book;
     }
 
     @Override
     public CD createCD(CD cd) {
         em.persist(cd);
-        return null;
+        return cd;
     }
 
 }
