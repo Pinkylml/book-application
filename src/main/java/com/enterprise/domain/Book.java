@@ -1,27 +1,11 @@
 package com.enterprise.domain;
 
-import java.io.Serializable;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQuery(name = "findAllBooks", query = "SELECT b FROM Book b")
-public class Book implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String title;
-
-    private Float price;
-
-    @Column(length = 2000)
-    private String description;
+public class Book extends Item {
 
     private String isbn;
     private Integer nbOfPage;
