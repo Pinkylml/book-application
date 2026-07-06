@@ -27,7 +27,6 @@ public class BookEJB implements BookEJBRemote {
     public List<Book> findBooks() {
         Query query = em.createNamedQuery("findAllBooks");
         return query.getResultList();
-
     }
 
     @Override
