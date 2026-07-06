@@ -4,7 +4,7 @@
     <persistence-unit name="bookApplicationPU" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         
-        <jta-data-source>jdbc/bookApplicationDS</jta-data-source>
+        <jta-data-source>java:app/jdbc/bookApplicationDS</jta-data-source>
         
         <class>com.enterprise.domain.Book</class>
         

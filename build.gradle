@@ -5,6 +5,12 @@ plugins {
 group = 'com.enterprise'
 version = '1.0'
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
 repositories {
     mavenCentral() // The repository where Gradle searches for dependencies
 }
@@ -16,11 +22,21 @@ dependencies {
     // EJB API Dependency
     implementation 'javax.ejb:javax.ejb-api:3.2.2'
     
+    // Annotation API for DataSourceDefinition
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    
     // Embedded GlassFish for unit testing
     testImplementation 'org.glassfish.main.extras:glassfish-embedded-all:3.1.2.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.postgresql:postgresql:42.7.2'
 }
 
 test {
     useJUnitPlatform() // Required to run JUnit 5 tests
+    doFirst {
+        copy {
+            from "build/resources/main"
+            into "build/classes/java/main"
+        }
+    }
 }

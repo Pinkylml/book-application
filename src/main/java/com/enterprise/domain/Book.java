@@ -1,5 +1,6 @@
 package com.enterprise.domain;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,7 +10,7 @@ import javax.persistence.NamedQuery;
 
 @Entity
 @NamedQuery(name = "findAllBooks", query = "SELECT b FROM Book b")
-public class Book {
+public class Book implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
