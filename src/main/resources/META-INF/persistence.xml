@@ -7,6 +7,8 @@
         <jta-data-source>java:app/jdbc/bookApplicationDS</jta-data-source>
         
         <class>com.enterprise.domain.Book</class>
+        <class>com.enterprise.domain.CD</class>
+        <class>com.enterprise.domain.Item</class>
         
         <properties>
             <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
