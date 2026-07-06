@@ -69,4 +69,35 @@ public class Chapter7BusinessTest {
         assertNotNull(cachedData);
         assertEquals("Cached Payload Token Data", cachedData);
     }
+
+    @Test
+    public void testStatefulShoppingCartLifecycle() throws Exception {
+        // Look up our Stateful Component No-Interface View context
+        ShoppingCartEJB cartEJB = (ShoppingCartEJB) ctx
+                .lookup("java:global/main/ShoppingCartEJB!com.enterprise.business.ShoppingCartEJB");
+
+        com.enterprise.domain.Item dummyItem = new com.enterprise.domain.Item("Enterprise Blueprint EJB Book", 49.99F,
+                "Deep dive engineering guide");
+
+        // Populate conversation session memory
+        cartEJB.addItem(dummyItem);
+        assertEquals(49.99F, cartEJB.getTotal());
+
+        // Perform checkout operation to trigger container removal (@Remove)
+        cartEJB.checkout();
+    }
+
+    @Test
+    public void testProgrammaticTimerServiceRegistration() throws Exception {
+        // Look up our programmatic timer bean execution engine
+        CustomerEJB customerEJB = (CustomerEJB) ctx
+                .lookup("java:global/main/CustomerEJB!com.enterprise.business.CustomerEJB");
+
+        com.enterprise.domain.Item mockItem = new com.enterprise.domain.Item("Vintage Audio Disc CD", 12.50F,
+                "Limited collector item");
+
+        // Schedule a task to trigger on a highly specific dynamic loop (e.g., matching
+        // midnight execution)
+        customerEJB.scheduleDynamicPriceAudit(mockItem, "0", "0");
+    }
 }
