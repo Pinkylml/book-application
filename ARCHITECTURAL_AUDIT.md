@@ -17,6 +17,9 @@ This document provides a comprehensive audit of the **book-application** codebas
 | [`StatisticsEJB`](file:///c:/Users/jcando/anti-projects/JAVAEE/book-application/src/main/java/com/enterprise/business/StatisticsEJB.java) | EJB (Enterprise JavaBeans 3.2) | Chapter 7: Declarative Enterprise Scheduling | Fully Covered |
 | [`ShoppingCartEJB`](file:///c:/Users/jcando/anti-projects/JAVAEE/book-application/src/main/java/com/enterprise/business/ShoppingCartEJB.java) | EJB (Enterprise JavaBeans 3.2) | Chapter 7: Stateful Session Beans & Session Lifecycle | Fully Covered |
 | [`CustomerEJB`](file:///c:/Users/jcando/anti-projects/JAVAEE/book-application/src/main/java/com/enterprise/business/CustomerEJB.java) | EJB (Enterprise JavaBeans 3.2) | Chapter 7: Programmatic Timer Service & Serialized Info | Fully Covered |
+| [`ItemManagementEJB`](file:///c:/Users/jcando/anti-projects/JAVAEE/book-application/src/main/java/com/enterprise/business/ItemManagementEJB.java) | EJB 3.2 / Interceptors 1.2 | Chapter 8: Lifecycle Callbacks & Bean Interceptors | Fully Covered |
+| [`LoggingInterceptor`](file:///c:/Users/jcando/anti-projects/JAVAEE/book-application/src/main/java/com/enterprise/business/LoggingInterceptor.java) | Interceptors 1.2 Specification | Chapter 8: External Around-Invoke Interceptors | Fully Covered |
+| [`ProfileInterceptor`](file:///c:/Users/jcando/anti-projects/JAVAEE/book-application/src/main/java/com/enterprise/business/ProfileInterceptor.java) | EJB 3.2 / Interceptors 1.2 | Chapter 8: Lifecycle Event Callback Interceptors | Fully Covered |
 | [`persistence.xml`](file:///c:/Users/jcando/anti-projects/JAVAEE/book-application/src/main/resources/META-INF/persistence.xml) | JPA Configuration | Chapter 5: Persistence Units & JTA DataSources | Fully Covered |
 | [`glassfish-resources.xml`](file:///c:/Users/jcando/anti-projects/JAVAEE/book-application/src/main/resources/META-INF/glassfish-resources.xml) | Java EE Resource Definition | Chapter 5: Connection Pooling & JNDI Registration | Fully Covered |
 
@@ -187,6 +190,54 @@ Client Request
 - **`ScheduleExpression`**: Used to dynamically assign parameters like `hour` and `minute`.
 - **`TimerConfig`**: Instantiated with `new TimerConfig(item, true)` to pass the persistent target entity payload to the timer registry.
 - **`@Timeout`**: Declared on `executePriceAudit` in `CustomerEJB` to register it as the EJB container's target callback handler for programmatic timer events.
+
+---
+
+### F. Callbacks and Interceptors
+`ItemManagementEJB` maps class-level, method-level, lifecycle, and internal business interceptors to optimize cross-cutting concerns.
+
+#### Container Mechanics
+- **Around-Invoke Interception**: Interceptors wrap target method calls. The container triggers the external `@AroundInvoke` method (passing the execution context as an `InvocationContext` object). The interceptor must invoke `ic.proceed()` to forward execution to the next interceptor in the chain or the final business method.
+- **Interception Precedence**:
+  1. Class-level interceptors (e.g., `ProfileInterceptor`).
+  2. Method-level interceptors (e.g., `LoggingInterceptor`).
+  3. Bean-internal interceptor methods (e.g., `ItemManagementEJB.internalAuditLog`).
+- **Interception Bypass**: Declaring `@ExcludeClassInterceptors` on a business method bypasses class-level interceptors, while method-level and internal interceptors are still executed.
+- **Lifecycle Interception**: Interceptors can capture EJB lifecycle triggers:
+  - `@PostConstruct` intercepts bean instantiation immediately after dependency injection completes.
+  - `@PreDestroy` intercepts the bean destruction stage before it is discarded by the container pool.
+
+```
+Client Invocation (e.g., itemManagementEJB.createItem(item))
+      |
+      v
+[ProfileInterceptor] (@PostConstruct - executes once on bean instantiation)
+      |
+      v
+[LoggingInterceptor] (@AroundInvoke method logMethod starts)
+      |
+      v
+[ItemManagementEJB] (@AroundInvoke method internalAuditLog starts)
+      |
+      v
+[ItemManagementEJB.createItem()] (Executes business persistence logic)
+      |
+      v
+[ItemManagementEJB] (@AroundInvoke method internalAuditLog completes)
+      |
+      v
+[LoggingInterceptor] (@AroundInvoke method logMethod completes)
+      |
+      v
+Client Returns
+```
+
+#### Code Traceability
+- **`@Interceptors`**: Declared at the class level on `ItemManagementEJB` (attaching `ProfileInterceptor.class`) and at the method level on `createItem` (attaching `LoggingInterceptor.class`).
+- **`@AroundInvoke`**: Annotated inside `LoggingInterceptor` and `ItemManagementEJB` to identify interceptor callback methods wrapping business logic execution.
+- **`@ExcludeClassInterceptors`**: Placed on `findItemById` in `ItemManagementEJB` to bypass `ProfileInterceptor` invocation.
+- **`@PostConstruct` / `@PreDestroy`**: Configured inside `ProfileInterceptor` and `ItemManagementEJB` to hook custom logic into the bean's startup and teardown cycles.
+- **`InvocationContext`**: Passed to interceptor methods to inspect class targets (`ic.getTarget()`), active method configurations (`ic.getMethod()`), and trigger delegation (`ic.proceed()`).
 
 ---
 
