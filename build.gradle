@@ -29,6 +29,10 @@ dependencies {
     testImplementation 'org.glassfish.main.extras:glassfish-embedded-all:3.1.2.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testRuntimeOnly 'org.postgresql:postgresql:42.7.2'
+
+    //Interceptors:
+    compileOnly 'javax.interceptor:javax.interceptor-api:1.2.2'
+
 }
 
 test {
